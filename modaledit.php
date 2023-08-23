@@ -1,4 +1,5 @@
 <?php
+session_start();
 require('./includes/dbconfig.php');
 
 $sql = "SELECT p.project_id,p.project_name,p.create_time,p.dead_line,p.update_time,p.create_by,p.update_by,p.detail,p.owner,emp.emp_id,emp.emp_fname,emp.emp_lname
@@ -10,7 +11,8 @@ WHERE p.project_id = ".$_POST['id'];
 $result = mysqli_query($con, $sql);
 $row = mysqli_fetch_assoc($result);
 
-$sqlemp = "SELECT * FROM employees";
+$sqlemp = "SELECT * FROM employees
+WHERE employees.status <> 0";
 $emp_result = mysqli_query($con, $sqlemp);
 
 
@@ -65,8 +67,8 @@ $emp_result = mysqli_query($con, $sqlemp);
                         <option value="" selected>< /option>
                                 <?php foreach ($emp_result as $id) { ?>
 
-                        <option value="<?php echo $id['emp_id'] ?>">
-                            <?php echo $id['emp_id'] . " " . $id['emp_fname'] . " " . $id['emp_lname'] ?>
+                        <option value="<?php echo $id['emp_uid'] ?>">
+                            <?php echo $id['emp_uid'] . " " . $id['emp_fname'] . " " . $id['emp_lname'] ?>
                         </option>
 
                     <?php } ?>
@@ -83,7 +85,7 @@ $emp_result = mysqli_query($con, $sqlemp);
                 <div class="input-group-prepend">
                     <span class="input-group-text ">วันที่สร้างโปรเจค</span>
                 </div>
-                <input type="timestam" name="c-time" id="" class="form-control col-lg-4" readonly value="<?php echo date("d-m-Y ", strtotime($row['create_time'])) ?>">
+                <input type="timestam" name="c-time" id="" class="form-control col-lg-4" readonly value="<?php echo date("d/m/Y ", strtotime($row['create_time'])) ?>">
                 <div class="input-group-prepend">
                     <span class="input-group-text ">วันที่อัพเดทโปรเจค</span>
                 </div>
@@ -91,8 +93,8 @@ $emp_result = mysqli_query($con, $sqlemp);
             </div>
 
             <div class="form-floating mt-3">
-                <textarea class="form-control" placeholder="รายละเอียดงานโปรเจค" id="floatingTextarea" name="detail"><?php echo $row['detail'] ?></textarea>
                 <label for="floatingTextarea">รายละเอียดงานโปรเจค</label>
+                <textarea class="form-control" placeholder="รายละเอียดงานโปรเจค" id="floatingTextarea" name="detail"><?php echo $row['detail'] ?></textarea>
             </div>
 
             <!-- <div class="input-group mt-3">

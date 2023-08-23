@@ -1,10 +1,11 @@
 <?php
+session_start();
 include('./func.php');
 include('./includes/dbconfig.php');
 $sql2 = " SELECT project_create.project_name,task.task_name,task.task_id,project_create.create_time,project_create.dead_line,project_create.detail,employees.emp_fname,employees.emp_lname,project_create.create_by,project_create.project_id,project_create.owner
 FROM task
-right JOIN  project_create ON project_create.project_id = task.project_id
-right JOIN  employees ON project_create.owner = employees.emp_id 
+INNER JOIN  project_create ON project_create.project_id = task.project_id
+INNER JOIN  employees ON project_create.owner = employees.emp_uid 
 WHERE project_create.detail IS null OR project_create.status NOT IN(0)
 GROUP BY project_create.project_id";
 $result_task = mysqli_query($con, $sql2);
@@ -39,16 +40,16 @@ $order = 1;
             var table = $('#myTable').DataTable({
                 responsive: true,
 
-                "columnDefs": [{
+                "columnDefs": [
                         // progress_Bar
-                        "targets": 7,
-                        "render": function(data, type, row, meta) {
-                            return '<div class="progress mt-3">' +
-                                '<div class="progress-bar bg-success" role="progressbar" style="width: ' + data + '%;" aria-valuenow="' + data + '" aria-valuemin="0" aria-valuemax="100">' + data + '%' +
-                                '</div>' +
-                                '</div>';
-                        }
-                    },
+                    //     "targets": 7,
+                    //     "render": function(data, type, row, meta) {
+                    //         return '<div class="progress mt-3">' +
+                    //             '<div class="progress-bar bg-success" role="progressbar" style="width: ' + data + '%;" aria-valuenow="' + data + '" aria-valuemin="0" aria-valuemax="100">' + data + '%' +
+                    //             '</div>' +
+                    //             '</div>';
+                    //     }
+                    // },
                     {
                         // ช่องคำอธิบายมีตัวอักษรไม่เกิน 20 ตัว
                         "targets": 4,

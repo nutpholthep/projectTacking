@@ -1,4 +1,5 @@
 <?php
+session_start();
 require('./includes/dbconfig.php');
 $order = 1;
 $actN = 1;
@@ -8,7 +9,8 @@ FROM task
 RIGHT JOIN  project_create ON project_create.project_id = task.project_id 
 WHERE task.task_id IS null OR task.status NOT IN(0)
 ORDER BY project_create.project_id DESC";
-$emp_sql = "SELECT * FROM employees";
+$emp_sql = "SELECT * FROM employees
+WHERE employees.status <> 0";
 $a = ""; //ตัวแปรที่เอาไว้เก็บค่าProject_Name
 $task_query = mysqli_query($con, $sql2);
 $result = mysqli_query($con, $sql);
@@ -41,6 +43,7 @@ $emp_query = mysqli_query($con, $emp_sql);
 
     <link rel="stylesheet" href="//cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
     <script src="//cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(document).ready(function() {
 
@@ -54,7 +57,7 @@ $emp_query = mysqli_query($con, $emp_sql);
                         id: idx
                     },
                     function(result) {
-                        console.log(result); 
+                        console.log(result);
                         $("#modal_act").html(result);
                     }
                 );
@@ -62,7 +65,7 @@ $emp_query = mysqli_query($con, $emp_sql);
 
             });
             // let table = new DataTable('#taskTable');
-          
+
             $('#taskTable').DataTable({
 
                 "ordering": false,
@@ -83,9 +86,6 @@ $emp_query = mysqli_query($con, $emp_sql);
             });
 
         });
-       
-   
-
     </script>
 </head>
 
@@ -134,13 +134,13 @@ $emp_query = mysqli_query($con, $emp_sql);
                                                         <select name="task_emp[]" class=" task_emp " multiple="multiple" required>
                                                             <option value="">-เลือกผู้รับผิดชอบ</option>
                                                             <?php foreach ($emp_query as $results) {
-                                                                echo '<option value=" ' . $results["emp_id"] . '">
-                                       ' . $results["emp_id"] . '  ' . $results["emp_fname"] . '  ' . $results["emp_lname"] . ' 
+                                                                echo '<option value=" ' . $results["emp_uid"] . '">
+                                       ' . $results["emp_uid"] . '  ' . $results["emp_fname"] . '  ' . $results["emp_lname"] . ' 
                                     </option>';
                                                             } ?>
                                                         </select>
                                                     </div>
-                                                    <input type="date" name="datetask" id="datetask" class="form-control" min="<?php echo date("Y-m-d");?>">
+                                                    <input type="date" name="datetask" id="datetask" class="form-control" min="<?php echo date("Y-m-d"); ?>">
                                                     <div class="m-3 d-flex justify-content-end">
                                                         <button class="btn btn-success btn-lg">เพิ่มงาน</button>
                                                     </div>
@@ -186,7 +186,12 @@ $emp_query = mysqli_query($con, $emp_sql);
                                         เพิ่มกิจกรรมย่อย
                                         </a></td>";
 
-                                                        echo "<td><a href='./deletetask.php?idtask=" . $task['task_id'] . "'  class='btn btn-danger ' onclick='return confirm(\"ต้องการลบข้อมูลหรือไม่??\")'><i class='bi bi-trash'></i>ลบงาน</a></td>";
+                                                        // echo "<td><a href='./deletetask.php?idtask=" . $task['task_id'] . "'  class='btn btn-danger ' onclick='return confirm(\"ต้องการลบข้อมูลหรือไม่??\")'><i class='bi bi-trash'></i>ลบงาน</a></td>";
+                                                        echo '<td>';
+                                                        echo '<a href="./deletetask.php?idtask=' . $task['task_id'] . '" class="btn btn-danger" onclick="confirmDelete(event, \'' . $task['task_id'] . '\')">';
+                                                        echo '<i class="bi bi-trash"></i>ลบงาน';
+                                                        echo '</a>';
+                                                        echo '</td>';
                                                         echo "</tr>";
                                                     } else {
                                                         echo '<td></td>';
@@ -238,39 +243,67 @@ $emp_query = mysqli_query($con, $emp_sql);
 
     </div>
     </script>
-    
+
     <script>
-        function fetchProjectDeadline(selectElement) {
-    var project_id = selectElement.value;
-
-    $.ajax({
-        url: "fetch_project_deadline.php",
-        method: "POST",
-        data: { project_id: project_id },
-        success: function(response) {
-            var projectDeadline = response;
-            // console.log(projectDeadline);
-            var currentDate = new Date().toISOString().split("T")[0];
-
-            // ส่วนที่เพิ่มเข้ามา: ตรวจสอบว่าเป็นวันที่ที่ถูกต้องหรือไม่
-            if (isValidDate(projectDeadline)) {
-                var maxDate = Math.min(projectDeadline, currentDate);
-                var today = projectDeadline.toString();
-                // console.log(today);
-                
-                document.getElementById("datetask").max = today;
-            }
+      function confirmDelete(event, taskId) {
+    event.preventDefault();
+    Swal.fire({
+        title: 'ต้องการลบข้อมูลหรือไม่?',
+        icon: 'warning',
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        showCancelButton: true,
+        confirmButtonText: 'ใช่',
+        cancelButtonText: 'ยกเลิก',
+        // reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire(
+                'ลบงานหรือกิจกรรม!',
+                'คุณได้ทำงานลบสำเร็จแล้ว.',
+                'success'
+            ).then(() => {
+                // Redirect after the SweetAlert dialog is closed
+                window.location.href = './deletetask.php?idtask=' + taskId;
+            });
         }
     });
 }
 
-// ตรวจสอบว่าเป็นวันที่ที่ถูกต้องหรือไม่
-function isValidDate(dateString) {
-    var regEx = /^\d{4}-\d{2}-\d{2}$/;
-    return dateString.match(regEx) !== null;
-}
-         task.classList.toggle('active');
-    // project.classList.remove('active');
+
+        function fetchProjectDeadline(selectElement) {
+            var project_id = selectElement.value;
+
+            $.ajax({
+                url: "fetch_project_deadline.php",
+                method: "POST",
+                data: {
+                    project_id: project_id
+                },
+                success: function(response) {
+                    var projectDeadline = response;
+                    // console.log(projectDeadline);
+                    var currentDate = new Date().toISOString().split("T")[0];
+
+                    // ส่วนที่เพิ่มเข้ามา: ตรวจสอบว่าเป็นวันที่ที่ถูกต้องหรือไม่
+                    if (isValidDate(projectDeadline)) {
+                        var maxDate = Math.min(projectDeadline, currentDate);
+                        var today = projectDeadline.toString();
+                        // console.log(today);
+
+                        document.getElementById("datetask").max = today;
+                    }
+                }
+            });
+        }
+
+        // ตรวจสอบว่าเป็นวันที่ที่ถูกต้องหรือไม่
+        function isValidDate(dateString) {
+            var regEx = /^\d{4}-\d{2}-\d{2}$/;
+            return dateString.match(regEx) !== null;
+        }
+        task.classList.toggle('active');
+        // project.classList.remove('active');
     </script>
     <!-- <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script> -->
     <script src="https://adminlte.io/themes/v3/plugins/jquery/jquery.min.js"></script>

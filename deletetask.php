@@ -1,7 +1,7 @@
 
 <?php
 // ลบTask
-require("./dbconfig.php");
+require('./includes/dbconfig.php');
 $task = $_GET["idtask"]; ///เอามาจากปุ่มลบในหน้าTask
 // print_r($_GET);
 // exit;
@@ -11,7 +11,7 @@ WHERE task_id =$task ";
 $result = mysqli_query($con,$sql);
 
 if($result){
-    header("location:../task.php");
+    header("location:task.php");
  
 }
 else{

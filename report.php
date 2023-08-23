@@ -1,4 +1,5 @@
 <?php
+session_start();
 include('./func.php');
 include('./includes/dbconfig.php');
 ?>
@@ -178,9 +179,9 @@ include('./includes/dbconfig.php');
                         function top_month(type) {
                           chartType = type;
                           chart.config.type = chartType;
-                          chartData.labels = <?php echo json_encode($labels) ?>;
+                          chartData.labels = <?php echo json_encode($toplabels) ?>;
                           chartData.datasets[0].label = 'จำนวนที่อัพเดท';
-                          chartData.datasets[0].data = <?= json_encode($datas) ?>;
+                          chartData.datasets[0].data = <?= json_encode($topname) ?>;
                           // pie.classList.add('active');
                           // bar.classList.remove('active');
                           top.classList.toggle('btn-primary');

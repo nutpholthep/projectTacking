@@ -1,4 +1,5 @@
 <?php
+session_start();
 include('./func.php');
 include('./includes/dbconfig.php');
 error_reporting(0);
@@ -61,7 +62,7 @@ $deadline = $detail['dead_line'];
   <link rel="shortcut icon" href="./img/pic.png" type="image/x-icon">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous" />
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/css/bootstrap.min.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">
 
   <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
@@ -70,8 +71,9 @@ $deadline = $detail['dead_line'];
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js" integrity="sha384-+sLIOodYLS7CIrQpBjl+C7nPvqq+FbNUBDunl/OZv93DB7Ln/533i8e/mZXLi/P+" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/js/bootstrap.min.js"></script>
   <link rel="stylesheet" href="//cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
-    <script src="//cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js" defer></script>
+  <script src="//cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <script>
   $(document).ready(function() {
@@ -233,7 +235,7 @@ $deadline = $detail['dead_line'];
                   <div>
                     <input type="hidden" id="idx" name="$edit_id" value="<?php echo $id ?>">
                     <a href="#" id="open_edit" class="btn btn-warning" data-toggle="modal" data-target="#edit_page">แก้ไขรายละเอียด <span class="lnr lnr-pencil fw-bold"></span></a>
-                    <a href="deleteProject.php?iddel=<?php echo $id ?>" class="btn btn-danger" onclick="return confirm('ต้องการลบโปรเจคนี้จริงหรือไม่')">ลบโปรเจค<span class="lnr lnr-trash  "></span>
+                    <a href="deleteProject.php?iddel=<?php echo $id ?>" class="btn btn-danger" onclick="confirmDelete(event, <?php echo $id ?>)">ลบโปรเจค<span class="lnr lnr-trash  "></span>
                       </svg></a>
                   </div>
                 </div>
@@ -290,7 +292,7 @@ $deadline = $detail['dead_line'];
                   <ul class="nav nav-pills">
                     <li class="nav-item"><a class="nav-link active" href="#activity" data-toggle="tab">Activity</a></li>
                     <li class="nav-item"><a class="nav-link" href="#timeline" data-toggle="tab">Timeline</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#settings" data-toggle="tab">Settings</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#edit_timeline" data-toggle="tab">Edit Timeline</a></li>
                   </ul>
                 </div><!-- /.card-header -->
                 <div class="card-body">
@@ -342,7 +344,7 @@ $deadline = $detail['dead_line'];
                                 <td></td>
                                 <td><?php echo $task["activity_name"]; ?></td>
                                 <?php if ($task['activity_progress'] == 100) {
-                                  $dateNow = strtotime('now');
+                                   $dateNow = strtotime('now');
                                   $deadLine = strtotime($taskDeadLine['dead_line']);
                                   $st2 = date('d/m/Y', $deadLine);
                                   if ($dateNow <= $deadLine) {
@@ -429,29 +431,47 @@ $deadline = $detail['dead_line'];
                           FROM history_acitivity AS ac
                           LEFT JOIN activity ON activity.activity_id = ac.activity_id
                            LEFT JOIN task ON task.task_id = activity.task_id
-                          WHERE task.task_id = '$task_id' AND task.project_id = '$p_id'";
+                          WHERE task.task_id = '$task_id' AND task.project_id = '$id'";
                           $result = mysqli_query($con, $que_act);
                           while ($row = mysqli_fetch_assoc($result)) {
-                            $task_id = $row['task_id'];
+                            $task_ids = $row['task_id'];
                             $p_id = $row['project_id'];
-                            echo $res = timeline($task_id, $p_id);
+                            $acti_ID = $row['activity_id'];
+
+                            //  edittimeline($id);
                           }
                         }
+                        timeline($task_ids, $id);
 
                         ?>
                         <!-- END timeline item -->
+
                         <div>
                           <i class="far fa-clock bg-gray"></i>
                         </div>
                       </div>
                     </div>
                     <!-- /.tab-pane -->
+                    <!-- /.card-body -->
+
+                    <div class="tab-pane" id="edit_timeline">
+                      <!-- The timeline -->
+                      <div class="timeline timeline-inverse">
+                        <!-- timeline time label -->
+                        <?php
+                        edittimeline($id);
+                        ?>
+                        <!-- END timeline item -->
+
+                        <div>
+                          <i class="far fa-clock bg-gray"></i>
+                        </div>
+                      </div>
+                    </div>
 
 
-                    <!-- /.tab-pane -->
                   </div>
-                  <!-- /.tab-content -->
-                </div><!-- /.card-body -->
+                </div>
               </div>
               <!-- /.card -->
             </div>
@@ -562,6 +582,30 @@ $deadline = $detail['dead_line'];
 
   <script>
     display.classList.toggle('active');
+    function confirmDelete(event, taskId) {
+    event.preventDefault();
+    Swal.fire({
+        title: 'ต้องการลบโปรเจคหรือไม่?',
+        icon: 'warning',
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        showCancelButton: true,
+        confirmButtonText: 'ใช่',
+        cancelButtonText: 'ยกเลิก',
+        // reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire(
+                'ลบโปรเจคสำเร็จ!',
+                'คุณได้ทำงานลบสำเร็จแล้ว.',
+                'success'
+            ).then(() => {
+                // Redirect after the SweetAlert dialog is closed
+                window.location.href = './display.php';
+            });
+        }
+    });
+}
   </script>
 
   <!-- <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script> -->

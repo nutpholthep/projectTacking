@@ -1,4 +1,5 @@
 <?php
+session_start();
 require('./includes/dbconfig.php');
 $sql="SELECT p.project_id,p.project_name,t.task_id,t.task_name,t.status
 FROM project_create AS p

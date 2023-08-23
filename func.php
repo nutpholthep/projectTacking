@@ -27,7 +27,9 @@ function progress_Bar($id)
     $result=$con->query($sql);
     foreach($result as $val){
         
-        // $val['COUNT(activity_progress)'];
+        if($val['COUNT(activity_progress)']==0){
+            return 0;
+        }
         return  $val = intval(($val['bar'] * 100) / ($val['COUNT(activity_progress)'] * 100));
     }
 }
@@ -70,9 +72,9 @@ function projectId(){
 // แสดงรายละเอียดโปรเจค
 function detail($id){
    include('./includes/dbconfig.php');
-    $sql ="SELECT  p.project_name,p.dead_line,p.owner,p.detail,emp.emp_fname,emp.emp_lname
+    $sql ="SELECT  p.project_name,p.dead_line,p.owner,p.detail,emp.emp_fname,emp.emp_lname,emp.emp_uid
     FROM project_create AS p 
-    LEFT JOIN employees AS emp on emp.emp_id = p.owner
+    LEFT JOIN employees AS emp on emp.emp_uid = p.owner
     WHERE p.project_id =$id";
 
 
@@ -85,9 +87,9 @@ function detail($id){
 // แสดงรายละเอียดคนสร้าง
 function create_by($id){
    include('./includes/dbconfig.php');
-    $sql ="SELECT  emp.emp_fname,emp.emp_lname,p.create_by,p.create_time
+    $sql ="SELECT  emp.emp_fname,emp.emp_lname,p.create_by,p.create_time,emp.emp_uid
     FROM project_create AS p 
-    LEFT JOIN employees AS emp on emp.emp_id = p.create_by
+    LEFT JOIN employees AS emp on emp.emp_uid = p.create_by
     WHERE p.project_id =$id";
 
 
@@ -99,10 +101,12 @@ function create_by($id){
 // แสดงรายละเอียดอัพเดทโดยใคร
 function update_by($id){
    include('./includes/dbconfig.php');
-    $sql ="SELECT  emp.emp_fname,emp.emp_lname,p.update_by,p.update_time
-    FROM project_create AS p 
-    LEFT JOIN employees AS emp on emp.emp_id = p.update_by
-    WHERE p.project_id =$id";
+    $sql ="SELECT ac.activity_id,ac.activity_name,ac.update_time,emp.emp_fname,emp.emp_lname
+    FROM history_acitivity AS ac
+    LEFT JOIN activity ON activity.activity_id = ac.activity_id
+    LEFT JOIN task ON task.task_id = activity.task_id
+    LEFT JOIN employees AS emp ON emp.emp_uid = ac.update_by
+    WHERE task.project_id =$id";
 
 
     $result= $con->query($sql);
@@ -229,7 +233,7 @@ function countOwner(){
    include('./includes/dbconfig.php');
     $sql ="SELECT emp.emp_fname,emp.emp_lname,COUNT(p.owner) as project_count,CONCAT(emp_fname,' ',emp_lname) as FullName
     FROM project_create AS p
-    LEFT JOIN employees AS emp ON emp.emp_id = p.owner
+    LEFT JOIN employees AS emp ON emp.emp_uid = p.owner
     GROUP BY p.owner
     ORDER BY project_count DESC
     LIMIT 5";
@@ -262,9 +266,10 @@ $sql="SELECT ac.activity_id,ac.activity_name,ac.update_time,task.task_id,task.pr
 FROM history_acitivity AS ac
 LEFT JOIN activity ON activity.activity_id = ac.activity_id
 LEFT JOIN task ON task.task_id = activity.task_id
-LEFT JOIN employees AS emp ON emp.emp_id = ac.update_by
-WHERE task.task_id =$TaskId AND task.project_id =$ProId";
+LEFT JOIN employees AS emp ON emp.emp_uid = ac.update_by
+WHERE task.task_id ='$TaskId' AND task.project_id ='$ProId'";
    $result = mysqli_query($con,$sql);
+
   while($row = mysqli_fetch_assoc($result )){
   
     if($pre !==date('d/m/Y',strtotime($row['update_time']))){
@@ -298,14 +303,82 @@ WHERE task.task_id =$TaskId AND task.project_id =$ProId";
         <h4>ทำการอัพเดทความคืบหน้าที่'.$row['act_value'].'%</h4>
       </div>
       <div class="timeline-footer">
-      <h5 class="timeline-header"><a href="#">คนที่อัพเดท</a> '.$row['update_by'].$row['emp_fname'].$row['emp_lname'].'</h5>
+      <h5 class="timeline-header"><a href="#">คนที่อัพเดท</a> '.$row['update_by'].' '.$row['emp_fname'].$row['emp_lname'].'</h5>
+      </div>
+    </div>
+  </div>';
+ 
+  $pre = date('d/m/Y',strtotime($row['update_time']));
+
+}
+  }
+//   <a href="#" class="btn btn-primary btn-sm">Read more</a>
+//   <a href="#" class="btn btn-danger btn-sm">Delete</a>
+  
+function edittimeline($ProId){
+    include('./includes/dbconfig.php');
+    $today=date('Y-m-d');
+$sql="SELECT ac.activity_id,ac.activity_name,ac.update_time,ac.b_name,emp.emp_fname,emp.emp_lname
+FROM history_edit_activity AS ac
+LEFT JOIN activity ON activity.activity_id = ac.activity_id
+LEFT JOIN task ON task.task_id = activity.task_id
+LEFT JOIN employees AS emp ON emp.emp_uid = ac.edit_by
+WHERE  task.project_id ='$ProId'";
+   $result = mysqli_query($con,$sql);
+  while($row = mysqli_fetch_assoc($result )){
+  
+    if($pre !==date('d/m/Y',strtotime($row['update_time']))){
+        echo '<div class="time-label">
+        <span class="bg-info">
+          '.date('d/m/Y',strtotime($row['update_time'])).'
+        </span>
+      </div>
+      <!-- /.timeline-label -->
+      <!-- timeline item -->
+      <div>
+      
+      <i class="fa-solid fa-circle-check fa-2xl" style="color: #F4D160;"></i>';
+    }
+  else{
+    echo'<div class="time-label">
+   
+  </div>
+  <!-- /.timeline-label -->
+  <!-- timeline item -->
+  <div>
+  <i class="fa-solid fa-circle-check fa-2xl" style="color: #F4D160;"></i>';
+  }
+  echo'
+    <div class="timeline-item">
+      <span class="time"><i class="far fa-clock"></i>'.date('H:i',strtotime($row['update_time'])).'</span>
+  
+      <h3 class="timeline-header"><a href="#">Edit Activity</a> '.$row['b_name'].'</h3>
+  
+      <div class="timeline-body">
+        <h4>เปลี่ยนเป็น '.$row['activity_name'].'</h4>
+      </div>
+      <div class="timeline-footer">
+      <h5 class="timeline-header"><a href="#">คนที่อัพเดท</a> '.$row['update_by'].' '.$row['emp_fname'].$row['emp_lname'].'</h5>
       </div>
     </div>
   </div>';
   $pre = date('d/m/Y',strtotime($row['update_time']));
 }
   }
-//   <a href="#" class="btn btn-primary btn-sm">Read more</a>
-//   <a href="#" class="btn btn-danger btn-sm">Delete</a>
-  
-  
+
+  function checkTime($dateNow,$deadLine){
+    if($dateNow>$deadLine){
+        return 'หมดเวลาการทำแล้ว';
+    }else{
+        return 'เหลือเวลาทำอีก '.round(abs($dateNow- $deadLine )/60/60/24).' วัน';
+    }
+    
+  }
+
+  function checkStatus($status){
+    if($status === '1'){
+        echo '<span class="badge badge-pill badge-success">ใช้งานได้</span>';
+    }else{
+        echo '<span class="badge badge-pill badge-danger">ปิดการใช้งาน</span>';
+    }
+  }

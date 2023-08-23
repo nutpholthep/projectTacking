@@ -3,50 +3,53 @@ session_start();
 require_once './includes/dbconfig.php';
 
 if (isset($_POST['signin'])) {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+    $username = mysqli_escape_string($con,$_POST['username']);
+    $password  = mysqli_escape_string($con,$_POST['password']);
 
-    if (empty($username)) {
-        $_SESSION['error'] = "รหัสพนักงานผิด";
-        header('location: sigin.php');
-    } else if (empty($password)) {
-        $_SESSION['error'] = "กรุณากรอกรหัสผ่าน";
-        header('location: sigin.php');
-    } else if (strlen($password) < 5 || strlen($password) > 20) {
-        $_SESSION['error'] = "รหัสผ่านต้องมีความยาวระหว่าง 5-20 ตัวอักษร";
-        header('location: index.php');
-    } else {
-        try {
-            $check_data = $con->prepare("SELECT emp_id, emp_pwd FROM employees WHERE emp_id = ?");
-            $check_data->bind_param("s", $username);
-            $check_data->execute();
-            $check_data->store_result();
+    if (empty($username) || empty($password)) {
+        $_SESSION['error'] = "Please enter both username and password.";
+        header('Location: index.php');
+        exit();
+    }
 
-            if ($check_data->num_rows > 0) {
-                $check_data->bind_result($dbUsername, $dbPassword);
+    try {
+        $check_data = $con->prepare("SELECT emp_uid, emp_pwd,role FROM employees WHERE emp_uid = ?");
+        $check_data->bind_param("s", $username);
+        $check_data->execute();
+        $check_data->store_result();
 
-                echo password_verify($password, $dbPassword);
-                if ($check_data->fetch()) {
-                    if ($username === $dbUsername) {
-                       
-                        if (password_verify($password, $dbPassword)) {
-                            header('location: ss.php');
-                        } else {
-                            $_SESSION['error'] = 'รหัสผ่านผิด';
-                            header('location: login-v2.php');
-                        }
-                    } else {
-                        $_SESSION['error'] = 'อีเมลผิด';
-                        header('location: login-v2.php');
+        if ($check_data->num_rows > 0) {
+            $check_data->bind_result($dbUsername, $dbPassword,$dbRole);
+
+            if ($check_data->fetch()) {
+                if ($password===$dbPassword) {
+                    // Successful login - store the username in the session
+                    $_SESSION['username'] = $username;
+                    header('Location: index.php');
+                    if($dbRole=="admin"){
+                        $_SESSION['username'] = $username;
+                        $_SESSION['role'] = $username;
                     }
+                    exit();
+                } else {
+                    
+                    // $_SESSION['error'] =  $dbPassword;
+                    $_SESSION['error'] =  $password;
+                    header('Location: login-v2.php');
+                    exit();
                 }
-            } else {
-                $_SESSION['error'] = "ไม่มีในระบบ";
-                header('location: login-v2.php');
             }
-        } catch (PDOException $e) {
-            echo $e->getMessage();
+        } else {
+            $_SESSION['error'] = "Username not found.";
+            header('Location: login-v2.php');
+            exit();
         }
+    } catch (PDOException $e) {
+        // Log the error and display a generic error message to the user
+        error_log("Database error: " . $e->getMessage());
+        $_SESSION['error'] = "An error occurred. Please try again later.";
+        header('Location: index.php');
+        exit();
     }
 }
 ?>

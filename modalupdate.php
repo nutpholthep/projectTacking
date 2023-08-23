@@ -1,4 +1,6 @@
 <?php
+session_start();
+error_reporting(0);
 require('./includes/dbconfig.php');
 $sql2 = "SELECT task.task_id,activity.activity_id,activity.activity_name,activity.activity_progress
 FROM task
@@ -47,7 +49,7 @@ $emp_query = mysqli_query($con,$empsql);
             <input type="hidden" name="act_id" value="<?php echo $lact['activity_id'] ?>">
             <input type="hidden" name="act_name" value="<?php echo $lact['activity_name'] ?>">
             <input type="hidden" name="prev_value" value="<?php echo $lact['activity_progress'] ?>">
-            
+            <input type="hidden" name="update_by" value="<?php echo $_SESSION['username']?>">
            
             <tr>
               <td><?php echo $actN++ ?></td>
@@ -58,18 +60,7 @@ $emp_query = mysqli_query($con,$empsql);
             
   </div>
   </table>
-  <!-- <div class="input-group mt-3">
-    <label class="input-group-text" for="update_by">ระบุคนที่แก้ไข</label>
-    <select id="update_by" class="update_by form-select" name="update_by" required>
-  <option value="">เลือกรายชื่อ</option>
-      <?php foreach ($emp_query as $id) { ?>
-
-        <option value="<?php echo $id['emp_id'] ?>">
-          <?php echo $id['emp_id'] . " " . $id['emp_fname'] . " " . $id['emp_lname'] ?></option>
-
-      <?php   } ?>
-    </select>
-  </div> -->
+ 
   <div class="modal-footer">
                <button type="summit" class="btn btn-success" >บันทึกข้อมูล</button>
 

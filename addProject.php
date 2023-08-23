@@ -1,3 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    
+</body>
+</html>
 <?php
 require('./includes/dbconfig.php');
 // เพิ่มโปรเจค
@@ -8,8 +20,8 @@ $pname = $_POST['project_Name']; //ชื่อโปรเจค
 $ownerId = $_POST['idemp']; //ชื่อเจ้าของโปรเจค
 $detail= $_POST['detail']; //รายละเอียดงาน
 $date = $_POST['dead_line']; //กำหนดเวลาของโปรเจค
-$createby = 000001; //สร้างโดย
-$team = $_POST['team']; //สมาชิกทีม
+$createby = $_POST['create_by']; //สร้างโดย
+// $team = $_POST['team']; //สมาชิกทีม
 
 //เลือกลูกทีม
 // print_r($_POST);
@@ -19,28 +31,32 @@ $sql = " INSERT INTO project_create (project_name,owner,detail,dead_line,create_
 
 $result = mysqli_query($con,$sql);
 
-
+// echo " <script>
+// Swal.fire({
+//     icon: 'success',
+//     title: 'สร้างโปรเจคสำเร็จ',
+//     showConfirmButton: false,
+//     timer: 1500
+// }).then(function() {
+//     // เมื่อผู้ใช้ปิดกล่อง Swal ให้นำทางไปยังหน้าอื่น
+//     window.location.href = 'task.php';
+// });
+// </script>";
 
 if($result){
 // เอาค่าโปรเจคIDล่าสุด
-   $que = "SELECT MAX(project_id)
-   FROM project_create";
-   $result2=mysqli_query($con,$que);
-   $t=mysqli_fetch_assoc($result2);
-   $maxID=$t['MAX(project_id)']; 
-
-
-   if($result2){
-    //เอาโปรเจคIDล่าสุดและลูปเพื่อสมาชิกภายในทีมออกมา
-    foreach($team as $teamNew){
-        // echo $teamNew;
-        $sql2 = "INSERT INTO team (team_member,project_id )
-        VALUES ('$teamNew','$maxID')"; 
-        // echo $sql2;
-        $result3=mysqli_query($con,$sql2);
-    }
-   }
-header('location:task.php');
+echo " <script>
+Swal.fire({
+    icon: 'success',
+    title: 'สร้างโปรเจคสำเร็จ',
+    showConfirmButton: false,
+    timer: 1500
+}).then(function() {
+    // เมื่อผู้ใช้ปิดกล่อง Swal ให้นำทางไปยังหน้าอื่น
+    window.location.href = 'task.php';
+});
+</script>";
+// header('location:task.php');
 }else{
     mysqli_error($con);
 }

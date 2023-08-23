@@ -1,7 +1,10 @@
 <?php
+session_start();
+if(isset($_SESSION['username'])){     
 require('./includes/dbconfig.php');
 $sql = "SELECT DISTINCT * FROM project_create
-right JOIN employees ON project_create.create_by = employees.emp_id
+right JOIN employees ON project_create.create_by = employees.emp_uid
+WHERE employees.status <> 0
 GROUP BY employees.emp_id";
 $result = mysqli_query($con, $sql);
 ?>
@@ -26,6 +29,7 @@ $result = mysqli_query($con, $sql);
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js" defer></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">
 <link rel="stylesheet" href="./style.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script type="text/javascript">
     $(document).ready(function() {
         $('.js-example-basic-single').select2({
@@ -43,7 +47,8 @@ $result = mysqli_query($con, $sql);
     <?php
     include('./navbar.php');
     include('./aside.php');
-
+  
+?>
     ?>
     <div class="content-wrapper">
 <div class="content">
@@ -57,6 +62,7 @@ $result = mysqli_query($con, $sql);
 
                         <div class="card-body">
                                 <form action="addProject.php" method="post" class="needs-validation" novalidate>
+                                        <input type="hidden" name="create_by" value="<?php echo $_SESSION['username']?>">
                                         <h1 class="text-center">สร้างโปรเจค</h1>
                                         <div class="input-group">
                                                 <div class="input-group-prepend">
@@ -77,8 +83,8 @@ $result = mysqli_query($con, $sql);
                                                         <option value="" selected>>----เลือกเจ้าของโปรเจค----<</option>;
                                                                         <?php foreach ($result as $id) {
 
-                                                                                echo '<option value="' . $id["emp_id"] . ' ">
-                                        ' . $id["emp_id"] . '' . $id["emp_fname"] . ' ' . $id["emp_lname"] . ' </option>';
+                                                                                echo '<option value="' . $id["emp_uid"] . ' ">
+                                        ' . $id["emp_uid"] . '' . $id["emp_fname"] . ' ' . $id["emp_lname"] . ' </option>';
                                                                         }; ?>
 
                                                 </select>
@@ -119,14 +125,16 @@ $result = mysqli_query($con, $sql);
     </div>
 
    
-
+<a href="http://"></a>
 
 
 
 
 
 <!-- <script src="./validation.js"></script> -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+
 // Example starter JavaScript for disabling form submissions if there are invalid fields
 (function() {
   'use strict';
@@ -156,3 +164,8 @@ project.classList.toggle('active');
 </body>
 
 </html>
+<?php
+} else{
+echo "<a href='./login-v2.php'>กรุณากลับไปหน้าLogin</a>";
+
+}?>

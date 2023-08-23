@@ -1,3 +1,12 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
 <?php
 
 require('./includes/dbconfig.php');
@@ -31,10 +40,23 @@ if($result2){
      $sql2 = "INSERT INTO team (team_member,project_id,task_id)
      VALUES ($teamNew,$project_id,$maxID)"; 
      // echo $sql2;
+//      print_r($_POST);
+// exit;
      $result3=mysqli_query($con,$sql2);
  }
 }
-header('location:task.php');
+echo " <script>
+Swal.fire({
+    icon: 'success',
+    title: 'เพิ่มงานสำเร็จ',
+    showConfirmButton: false,
+    timer: 1500
+}).then(function() {
+    // เมื่อผู้ใช้ปิดกล่อง Swal ให้นำทางไปยังหน้าอื่น
+    window.location.href = 'task.php';
+});
+</script>";
+// header('location:task.php');
 }else{
  mysqli_error($con);
 }

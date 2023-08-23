@@ -1,5 +1,7 @@
 <?php
 session_start();
-unset($_SESSION['users_login']);
-unset($_SESSION['admin_login']);
-header('location:index.php');
+unset($_SESSION['username']);
+// unset($_SESSION['admin_login']);
+session_destroy();
+header('location:login-v2.php');
+exit();

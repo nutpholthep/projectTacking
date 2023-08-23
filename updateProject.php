@@ -1,3 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    
+</body>
+</html>
 <?php
 include('./includes/dbconfig.php');
 $id = $_POST['idedit']; //โปรเจคId
@@ -16,7 +28,18 @@ WHERE project_id = $id ";
 
 $result = mysqli_query($con,$sql);
 if($result){
-    header('location:mainpage.php?idp='.$_POST['idedit']);
+    echo " <script>
+    Swal.fire({
+        icon: 'success',
+        title: 'อัพเดทความคืบหน้าสำเร็จ',
+        showConfirmButton: false,
+        timer: 1500
+    }).then(function() {
+        // เมื่อผู้ใช้ปิดกล่อง Swal ให้นำทางไปยังหน้าอื่น
+        window.location.href = 'mainpage.php?idp=". $_POST['idedit'] ."';
+    })
+    </script>";
+    // header('location:mainpage.php?idp='.$_POST['idedit']);
    
 
 }else{
