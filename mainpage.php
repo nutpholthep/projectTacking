@@ -14,11 +14,13 @@ $create_by = create_by($id);
 $update_by = update_by($id);
 $taskDeadLine = taskDeadLine($id);
 
-$sql2 = "SELECT DISTINCT project_create.project_name, task.task_name, task.task_id, activity.activity_name, activity.activity_progress, project_create.detail, activity.activity_id,project_create.project_id, task.dead_line
+$sql2 = "SELECT DISTINCT project_create.project_name, task.task_name, task.task_id, activity.activity_name, activity.activity_progress, project_create.detail, activity.activity_id,project_create.project_id, task.dead_line,emp.emp_uid
 FROM task
 RIGHT JOIN project_create ON project_create.project_id = task.project_id
 RIGHT JOIN activity ON task.task_id = activity.task_id 
-WHERE project_create.project_id = $id
+INNER JOIN team ON team.project_id = task.project_id
+INNER JOIN employees as emp ON emp.emp_uid = team.team_member
+WHERE project_create.project_id ='$id' AND emp.emp_uid = '".$_SESSION['username']."'
 ORDER BY task.task_id";
 
 $result_task = mysqli_query($con, $sql2);
