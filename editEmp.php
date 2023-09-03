@@ -116,7 +116,8 @@ $select_ids= $choose_id->fetch_assoc();
                                             <div class="form-row">
                                                 <div class="col-md-6 mb-3">
                                                     <label for="validationCustom03">รหัสผ่าน</label>
-                                                    <input type="text" class="form-control" id="validationCustom03" value="<?php echo $select_ids['emp_pwd']?>" name="pwd">
+                                                    <input type="password" class="form-control" id="validationCustom03" value="<?php echo $select_ids['emp_pwd']?>" name="pwd">
+                                                    <input type="checkbox" name="showpwd" id="showpwd"> แสดงรหัสผ่าน
                                                     <div class="invalid-feedback">
                                                         Please provide a valid city.
                                                     </div>
@@ -146,7 +147,7 @@ $select_ids= $choose_id->fetch_assoc();
                                                             <option selected value="<?php echo $select_ids['status']?>">ใช้งานได้</option>
                                                             <option  value="0">ปิดการใช้งาน</option>
                                                       <?php  }elseif($select_ids['status']== '0'){ ?>
-                                                         <option selected value="<?php echo $select_ids['status']?>"><?php echo $select_ids['status']?></option>
+                                                         <option selected value="<?php echo $select_ids['status']?>">ปิดการใช้งาน</option>
                                                          <option  value="1">ใช้งานได้</option>
                                                    <?php   }
                                                         ?>
@@ -201,6 +202,16 @@ $select_ids= $choose_id->fetch_assoc();
     </div>
 
     <script>
+          let pwd = document.getElementById("validationCustom03");
+        let ckPwd = document.getElementById("showpwd");
+        ckPwd.addEventListener("click",(e)=>{
+            if(ckPwd.checked == true){
+                pwd.type = "text";
+            }else{
+                pwd.type = "password";
+            }
+        })
+
         (function() {
             'use strict';
             window.addEventListener('load', function() {
@@ -220,6 +231,8 @@ $select_ids= $choose_id->fetch_assoc();
         })();
         emp.classList.toggle('active');
         // project.classList.remove('active');
+      
+        
     </script>
     <!-- <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script> -->
     <script src="https://adminlte.io/themes/v3/plugins/jquery/jquery.min.js"></script>

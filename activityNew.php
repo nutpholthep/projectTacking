@@ -22,7 +22,7 @@ $id = $_POST['id'];
 
 <body>
     <div class="container shadow p-3 mb-5 mt-5 bg-body-tertiary rounded">
-        <form action="./includes/addActivity.php" method="post">
+        <form action="./addActivity.php" method="post">
             <h1>รายละเอียดกิจกรรมย่อย</h1>
             <div class="input-group">
                 <div class="input-group-prepend">
