@@ -37,39 +37,30 @@ $order = 1;
     <script>
         // สร้างDataTable
         $(document).ready(function() {
-            var table = $('#myTable').DataTable({
-                responsive: true,
-
-                "columnDefs": [
-                        // progress_Bar
-                    //     "targets": 7,
-                    //     "render": function(data, type, row, meta) {
-                    //         return '<div class="progress mt-3">' +
-                    //             '<div class="progress-bar bg-success" role="progressbar" style="width: ' + data + '%;" aria-valuenow="' + data + '" aria-valuemin="0" aria-valuemax="100">' + data + '%' +
-                    //             '</div>' +
-                    //             '</div>';
-                    //     }
-                    // },
-                    {
-                        // ช่องคำอธิบายมีตัวอักษรไม่เกิน 20 ตัว
-                        "targets": 4,
-                        "data": "description",
-
-                        "render":
-
-                            function(data, type, row, meta) {
-                                return type === 'display' && data.length > 20 ?
-                                    '<span title="' + data + '">' + data.substr(0, 20) + '...</span>' :
-                                    data;
-                            }
-
-                    }
-                ],
-
-
-            });
-
-        });
+    var table = $('#myTable').DataTable({
+        responsive: true,
+        "columnDefs": [
+            {
+                "targets": 7,
+                "render": function(data, type, row, meta) {
+                    return '<div class="progress mt-3">' +
+                        '<div class="progress-bar bg-success" role="progressbar" style="width: ' + data + '%;" aria-valuenow="' + data + '" aria-valuemin="0" aria-valuemax="100">' + data + '%' +
+                        '</div>' +
+                        '</div>';
+                }
+            },
+            {
+                "targets": 4,
+                "data": "description",
+                "render": function(data, type, row, meta) {
+                    return type === 'display' && data.length > 20 ?
+                        '<span title="' + data + '">' + data.substr(0, 20) + '...</span>' :
+                        data;
+                }
+            }
+        ]
+    });
+});
     </script>
 </head>
 

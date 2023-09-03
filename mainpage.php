@@ -582,7 +582,7 @@ $deadline = $detail['dead_line'];
 
   <script>
     display.classList.toggle('active');
-    function confirmDelete(event, taskId) {
+    function confirmDelete(event, projectId) {
     event.preventDefault();
     Swal.fire({
         title: 'ต้องการลบโปรเจคหรือไม่?',
@@ -601,7 +601,7 @@ $deadline = $detail['dead_line'];
                 'success'
             ).then(() => {
                 // Redirect after the SweetAlert dialog is closed
-                window.location.href = './display.php';
+                window.location.href = './deleteProject.php?iddel=' + projectId;
             });
         }
     });

@@ -15,7 +15,7 @@ $result = mysqli_query($con,$sql);
 
 if($result){
   
-   header("location:tem_display.php");
+   header("location:display.php");
 }else{
     mysqli_error($con);
 }
